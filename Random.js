@@ -1,4 +1,4 @@
-const fs = require('fs')
+const fs = require('graceful-fs')
 
 const first = "pm>*rgOvtWYX4suD2a5T#o1!l^Lhy0z<9f%k\\QAEwKn)x3cVi&SHG7;|]Ue{jIdq(PRCBZ8b6FMN}"
 const second = "aK|SFlDk3>LP2%9ZR<470W6]HwuzdByQM}U8tC{o^cf!vq&*ixn5bp(#N;mGVOIjXE)YAhs\\egT1r"
@@ -30,7 +30,6 @@ exports.next = () => {
     fs.writeFile('./places.csv', places.toString(), err => {
         if (err) console.error(err)
     })
-
     return s.substr(0,6)
 };
 

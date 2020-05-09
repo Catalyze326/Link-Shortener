@@ -11,10 +11,12 @@
     "express": "~4.16.1",
     "express-flash": "0.0.2",
     "express-session": "^1.17.1",
+    "graceful-fs": "^4.2.4",
     "http-errors": "~1.6.3",
-    "mongodb": "^2.2.33",
+    "mongodb": "^3.5.7",
     "morgan": "~1.9.1",
     "open": "^7.0.3",
-    "pug": "2.0.0-beta11"
+    "pug": "^2.0.4",
+    "url-exists": "^1.0.3"
   }
 }

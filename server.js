@@ -6,6 +6,8 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const flash = require('express-flash');
 const app = express();
+const urlExists = require('url-exists');
+
 const random = require('./Random')
 
 const middlewares = [
@@ -26,8 +28,8 @@ const middlewares = [
 app.use(middlewares)
 
 // start the express web server listening on 8080
-app.listen(8080, () => {
-    console.log('listening on 8080');
+app.listen(8888, () => {
+    console.log('listening on 8888');
 });
 
 console.log('Server-side code running');
@@ -40,28 +42,18 @@ app.use(express.static('public'));
 let db;
 
 // ***Replace the URL below with the URL for your database***
-const url = 'mongodb://reportsUser:passwd(*@localhost:27017/urls';
+const url = 'mongodb://user:passwdw@localhost:27017/urls';
 // E.g. for option 2) above this will be:
 // const url =  'mongodb://localhost:21017/databaseName';
 
-MongoClient.connect(url, (err, database) => {
+MongoClient.connect(url, (err, client) => {
     if (err) return console.log(err);
-    db = database;
+    db = client.db("url");
     // start the express web server listening on 8080
-    app.listen(8888, () => {
-        console.log('listening on 8080');
+    app.listen(8080, () => {
+        console.log("listening on 8888");
     });
 });
-
-function validURL(str) {
-    var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
-        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) addres
-        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
-        '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-        '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
-    return !!pattern.test(str);
-}
 
 // serve the homepage
 app.get('/', (req, res) => {
@@ -70,7 +62,6 @@ app.get('/', (req, res) => {
 
 // add a document to the DB collection recording the click event
 app.post('/', (req, res) => {
-    if (!validURL(req.body.uri)) req.flash("success", "That is not a valid url")
     let json = {}
     console.log(random.next())
     json["_id"] = random.next()
@@ -81,6 +72,7 @@ app.post('/', (req, res) => {
         // console.log('uri added to db');
         // res.flash('success', "That is not a valid url")
     });
+    res.send(json['_id'] + '\n')
 });
 
 app.get('/r/:id', function (req, res) {
@@ -96,3 +88,6 @@ app.get('/r/:id', function (req, res) {
     }
 });
 
+app.post('/api', (req, res) => {
+    res.send("api response")
+});
