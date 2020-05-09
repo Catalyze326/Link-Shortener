@@ -41,7 +41,7 @@ app.use(express.static('public'));
 let db;
 
 // ***Replace the URL below with the URL for your database***
-const url = 'mongodb://reportsUser:SkittlesIcecr33m(*@localhost:27017/urls';
+const url = 'mongodb://@localhost:27017/urls';
 // E.g. for option 2) above this will be:
 // const url =  'mongodb://localhost:21017/databaseName';
 
@@ -89,10 +89,8 @@ app.post('/lonk', (req, res) => {
 // add a document to the DB collection recording the click event
 app.post('/sketchy', (req, res) => {
     let json = {}
-    // console.log(random.sketchy())
     json["_id"] = random.sketchy()
     json['uri'] = req.body.uri
-    // console.log(json)
     db.collection('urls').insertOne(json, (err) => {
         if (err) return console.log(err);
     });
