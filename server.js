@@ -42,7 +42,7 @@ app.use(express.static('public'));
 let db;
 
 // ***Replace the URL below with the URL for your database***
-const url = 'mongodb://reportsUser:SkittlesIcecr33m(*@localhost:27017/urls';
+const url = 'mongodb://reportsUser:passwd(*@localhost:27017/urls';
 // E.g. for option 2) above this will be:
 // const url =  'mongodb://localhost:21017/databaseName';
 
