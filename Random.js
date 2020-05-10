@@ -8,39 +8,40 @@ const fifth = "*induoeI>HgvDyKRYclsqrx6#WEz!Bm<7w^V(AO&S9NabM2k\\C|3X0;4GZ8Pp1Lj
 const sixth = "aClw6uy>V2Y;g)Svjs0qD&G|TK#Itfn9*]U1Oo8Qm(khRiBZ5Wbcxz!XpdF^e7PA3HLNME<4r\\"
 const decimals = [first, second, third, fourth, fifth, sixth]
 let places = []
-let sketchyPhrases = ["DRIVEBYDOWNLOADS.ENABLED",
+let sketchyPhrases = [
+    "DRIVE.BY.DOWNLOADS.ENABLED",
     "FACEBOOK.TRACKING.ENBLED",
-    "GOOGLE.LOCATIONDATA.TRUE",
+    "GOOGLE.LOCATION.DATA.TRUE",
     "NSA.YES",
-    "WHEREISSNOWDEN.IDK",
-    'IFFBITRACKING.TRUE',
-    'IPDETECTED',
-    'WATCHLISTUPDATED',
+    "WHERE.IS.SNOWDEN.IDK",
+    'IF.FBI.TRACKING.TRUE',
+    'IP.DETECTED',
+    'WATCHLIST.UPDATED',
     'ENCRYPTION.NAH',
     'SECURITY.WHAT',
     'SECURITY.NO',
-    'FALSESENSEOFSECURITY.ENABLED',
+    'FALSE.SENSE.OF.SECURITY.ENABLED',
     'ANTIMALWARE.DISABLED',
-    'TRACKINGCOUNTRY.CHINA',
-    'SENDINGPACKAGE.LOCATION.WOHAN',
-    'VIRUSDETECTED.ADDINGTOHOSTSYSTEM',
+    'TRACKING.COUNTRY.CHINA',
+    'SENDING.PACKAGE.LOCATION.WOHAN',
+    'VIRUS.DETECTED.ADDING.TO.HOST.SYSTEM',
     'VIRUS.COVID19.ENABLED',
-    'YOUWILLNEVERFINDUS.TRUE',
-    'USERISIDIOT.TRUE',
+    'YOU.WILL.NEVER.FIND.US.TRUE',
+    'USER.IS.IDIOT.TRUE',
     'ILLUMINATI.INJECTED',
     'ILLUMINATI.CONFIRMED',
-    'ITSTOOLATEFORYOU',
-    'ATFMAN.LISTENING.TRUE',
+    'ITS.TOO.LATE.FOR.YOU',
+    'ATF.MAN.LISTENING.TRUE',
     'CIA.AGENT.STATUS.COMING',
     'NSA.AGENT.STATUS.COMING',
     'FBI.AGENT.STATUS.COMING',
     'MI6.AGENT.STATUS.COMING',
     'DISSA.AGENT.STATUS.COMING',
     'DARPA.BULLET.STATUS.FIRED',
-    'CANYOUSTOPME.NO',
-    'DARKWEBREDIRECT.TRUE',
+    'CAN.YOU.STOP.ME.NO',
+    'DARK.WEB.REDIRECT.TRUE',
     'TOR.STATUS.STARTING',
-    'THESITEYOUWANTED.FALSE',
+    'THE.SITE.YOU.WANTED.FALSE',
     'PEBCAK.TRUE',
     'RM-RF/.DOIT',
     'SYSTEM32.STATUS.GONE']
@@ -57,7 +58,10 @@ fs.readFile('./places.csv', (err, data) => {
     places = data.toString().split(",")
     console.log(places)
 })
-
+/*
+ Generates the next psudo random 6 char string by taking each alphabet and counting through them
+ essentially 000000 000001 except that it uses a random alphabet to look more random
+*/
 exports.next = () => {
     let s = ""
     places[0]++
@@ -73,28 +77,36 @@ exports.next = () => {
     return s.substr(0, 6)
 };
 
+/*
+  Uses the next function to generate the id and everything else after that is just making it look nice.
+  This way we will never have a dup entry till the db fils up.
+ */
 exports.lonk = () => {
-    let result = '';
-    let characters = '0123456789aAbBcCdDeEfFgGhHiIjkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ';
+    let result = next();
+    let characters = '!#&()*0123456789;<>A0123456789aAbBcCdDeEfFgGhHiIjkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ';
     let charactersLength = characters.length;
     for (let i = 0; i < 2048; i++) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
-};
+}
 
+/*
+  Uses the next function to generate the id and everything else after that is just making it look nice.
+  This way we will never have a dup entry till the db fils up.
+ */
 exports.sketchy = () => {
-    let result = '';
-    let characters = '0123456789aAbBcCdDeEfFgGhHiIjkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ';
+    let result = next();
+    // Smaller alphabet so that the phrases stick out more
+    let characters = 'abcdefghijklmnopqrstuvwxyz';
     let charactersLength = characters.length;
-    for (let i = 0; i < 3; i++) {
-        for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < 6; i++) {
+        for (let i = 0; i < 4; i++) {
             result += characters.charAt(Math.floor(Math.random() * charactersLength));
         }
-        result += sketchyPhrases[getRandomInt(result.length)]
+        result += sketchyPhrases[getRandomInt(result.length - 1)]
     }
     return result;
 };
 
-// module.exports.next = next()
 
