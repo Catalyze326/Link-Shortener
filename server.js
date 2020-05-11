@@ -11,7 +11,7 @@ const csrf = require('csurf');
 const random = require('./Random');
 const app = express();
 const redirectApp = express();
-var helmet = require('helmet');
+const helmet = require('helmet');
 
 // TODO use only the first 6 chars for grabbing the url from the mongo db because they all start with next I could also use more nums at the beginning to make the database bigger
 const expiryDate = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
@@ -20,30 +20,27 @@ const middlewares = [
     bodyParser.json(),
     bodyParser.urlencoded({extended: false}),
     cookieParser(),
-    session({
-        secret: '^BU$vc6y^L6j8DkqtNWmy6WUgy@7oRyX$^VMSIbXv8',
-        key: '^BU$vc6y^L6j8DkqtNWmy6WUgy@7oRyX$^VMSIbXv8',
-        name: 'sessionId',
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
+    express.static('public'),
+    csrf({       cookie: {
             maxAge: 60000,
             secure: true,
             httpOnly: true,
             domain: 'dont.comeat.me',
             path: 'foo/bar',
             expires: expiryDate
-        }
-    }),
-    express.static('public'),
+        }}),
     helmet(),
+    helmet.noSniff(),
 ];
-const csrfProtection = csrf({cookie: true});
-
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store')
+    next()
+})
+app.set('etag', false)
+app.disable('x-powered-by');
 app.set('view engine', 'ejs');
 app.set('trust proxy', 1)
 app.use(middlewares)
-app.use(csrfProtection)
 
 console.log('Server-side code running');
 
