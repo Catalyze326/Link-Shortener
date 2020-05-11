@@ -1,10 +1,8 @@
 console.log('Server-side code running');
-const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS;
 const MongoClient = require('mongodb').MongoClient;
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const session = require('express-session');
 const https = require('https');
 const fs = require('fs');
 const csrf = require('csurf');
