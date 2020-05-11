@@ -6,6 +6,8 @@ I wanted to learn nodejs and this seemed like something moderately interesting a
 
 I have my dynamic dns hard coded in which you are going to want to change to what you are using. You are also going to want to comment out the ssl certs and make it run over http till you get your ssl certs and your dynamic dns working. Comment out all the redirectPort stuff and uncomment app.listen and put in the port you want.
 
+
+Note if you want it to ping a url to test if its valid you are going to need to run the code as root. Otherwise you can remove that.
 ##### Windows
 Why would you do that to yourself? Use linux.
 

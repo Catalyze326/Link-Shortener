@@ -10,8 +10,9 @@ const random = require('./Random');
 const app = express();
 const redirectApp = express();
 const helmet = require('helmet');
+const ping = require("net-ping");
+const request = require('request');
 
-// TODO use only the first 6 chars for grabbing the url from the mongo db because they all start with next I could also use more nums at the beginning to make the database bigger
 const expiryDate = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
 const middlewares = [
     express.static('public'),
@@ -19,14 +20,16 @@ const middlewares = [
     bodyParser.urlencoded({extended: false}),
     cookieParser(),
     express.static('public'),
-    csrf({       cookie: {
+    csrf({
+        cookie: {
             maxAge: 60000,
             secure: true,
             httpOnly: true,
             domain: 'dont.comeat.me',
             path: 'foo/bar',
             expires: expiryDate
-        }}),
+        }
+    }),
     helmet(),
     helmet.noSniff(),
 ];
@@ -42,17 +45,10 @@ app.use(middlewares)
 
 console.log('Server-side code running');
 
-// serve files from the public directory
-
 // connect to the db and start the express server
 let db;
 
-// ***Replace the URL below with the URL for your database***
-const url = 'mongodb://localhost:27017/urls';
-// E.g. for option 2) above this will be:
-// const url =  'mongodb://localhost:21017/databaseName';
-
-MongoClient.connect(url, (err, client) => {
+MongoClient.connect('mongodb://localhost:27017/urls', (err, client) => {
     if (err) return console.log(err);
     db = client.db("url");
     let redirectPort = 80
@@ -65,10 +61,6 @@ MongoClient.connect(url, (err, client) => {
     // });
 });
 
-redirectApp.get('/', (req, res) => {
-    res.redirect("https://dont.comeat.me" + req.url)
-});
-
 // serve the homepage
 app.get('/', (req, res) => {
     res.render(__dirname + '/public/index.ejs', {
@@ -78,8 +70,30 @@ app.get('/', (req, res) => {
     });
 });
 
+function validate(uri) {
+    const url = require("url");
+    const result = url.parse(uri);
+    console.log(result);
+    if (result.hostname == null) return false
+    const session = ping.createSession();
+    session.pingHost(result.href, function (error, target) {
+        if (error) return false
+        else console.log(target + ": Alive");
+    });
+    request({method: 'HEAD', uri: target}, function (error, response, body) {
+        if (!error && response.statusCode === 200) return false
+    })
+    return true
+}
+
 // add a document to the DB collection recording the click event
 app.post('/link', (req, res) => {
+    if (!validate(req.body.uri))
+        return res.render(__dirname + '/public/index.ejs', {
+            csrfToken: req.csrfToken(),
+            url: 'invalid url',
+            showUrl: ''
+        });
     let json = {}
     json["_id"] = random.next()
     json['uri'] = req.body.uri
@@ -87,8 +101,6 @@ app.post('/link', (req, res) => {
     db.collection('urls').insertOne(json, (err) => {
         if (err) return console.log(err);
     });
-    //res.send('http://localhost/r/' + json['_id'])
-    // res.send('https://dont.comeat.me/r/' + json['_id'])
     res.render(__dirname + '/public/index.ejs', {
         csrfToken: req.csrfToken(),
         url: 'https://dont.comeat.me/r/' + json['_id'],
@@ -105,7 +117,6 @@ app.post('/lonk', (req, res) => {
     db.collection('urls').insertOne(json, (err) => {
         if (err) return console.log(err);
     });
-    //res.send('http://localhost/r/' + json['_id'])
     res.render(__dirname + '/public/index.ejs', {
         csrfToken: req.csrfToken(),
         url: 'https://dont.comeat.me/r/' + json['_id'],
@@ -123,7 +134,6 @@ app.post('/sketchy', (req, res) => {
     db.collection('urls').insertOne(json, (err) => {
         if (err) return console.log(err);
     });
-    //res.send('http://localhost/r/' + json['_id'])
     res.render(__dirname + '/public/index.ejs', {
         csrfToken: req.csrfToken(),
         url: 'https://dont.comeat.me/r/' + json['_id'],
@@ -149,7 +159,6 @@ app.get('/r/:id', function (req, res) {
     if (req.params.id) {
         const cursor = db.collection("urls").find({_id: req.params.id});
         cursor.next().then(r => {
-            // console.log(r)
             res.redirect(r["uri"])
         })
     } else {

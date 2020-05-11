@@ -19,10 +19,12 @@
     "http-errors": "~1.6.3",
     "https": "^1.0.0",
     "mongodb": "^3.5.7",
-    "morgan": "~1.9.1",
+    "net-ping": "^1.2.3",
     "open": "^7.0.3",
+    "request": "^2.88.2",
     "sessions": "0.0.2-7",
-    "snyk": "^1.320.1"
+    "snyk": "^1.320.1",
+    "url": "^0.11.0"
   },
   "snyk": true
 }
