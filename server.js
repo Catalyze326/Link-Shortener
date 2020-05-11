@@ -1,41 +1,53 @@
 console.log('Server-side code running');
-const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS
+const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS;
 const MongoClient = require('mongodb').MongoClient;
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-const flash = require('express-flash');
 const https = require('https');
-const fs = require('fs')
-const random = require('./Random')
+const fs = require('fs');
+const csrf = require('csurf');
+const random = require('./Random');
 const app = express();
 const redirectApp = express();
+var helmet = require('helmet');
 
 // TODO use only the first 6 chars for grabbing the url from the mongo db because they all start with next I could also use more nums at the beginning to make the database bigger
-
+const expiryDate = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
 const middlewares = [
     express.static('public'),
     bodyParser.json(),
-    bodyParser.urlencoded({extended: true}),
+    bodyParser.urlencoded({extended: false}),
     cookieParser(),
-    flash(),
     session({
-        secret: 'super-secret-key',
-        key: 'super-secret-cookie',
+        secret: '^BU$vc6y^L6j8DkqtNWmy6WUgy@7oRyX$^VMSIbXv8',
+        key: '^BU$vc6y^L6j8DkqtNWmy6WUgy@7oRyX$^VMSIbXv8',
+        name: 'sessionId',
         resave: false,
         saveUninitialized: false,
-        cookie: {maxAge: 60000}
+        cookie: {
+            maxAge: 60000,
+            secure: true,
+            httpOnly: true,
+            domain: 'dont.comeat.me',
+            path: 'foo/bar',
+            expires: expiryDate
+        }
     }),
+    express.static('public'),
+    helmet(),
 ];
+const csrfProtection = csrf({cookie: true});
 
+app.set('view engine', 'ejs');
+app.set('trust proxy', 1)
 app.use(middlewares)
+app.use(csrfProtection)
 
 console.log('Server-side code running');
 
-
 // serve files from the public directory
-app.use(express.static('public'));
 
 // connect to the db and start the express server
 let db;
@@ -48,7 +60,6 @@ const url = 'mongodb://localhost:27017/urls';
 MongoClient.connect(url, (err, client) => {
     if (err) return console.log(err);
     db = client.db("url");
-    // start the express web serve listening on 8080
     let redirectPort = 80
     redirectApp.listen(redirectPort, () => {
         console.log("redirect listening on " + redirectPort);
@@ -65,7 +76,11 @@ redirectApp.get('/', (req, res) => {
 
 // serve the homepage
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+    res.render(__dirname + '/public/index.ejs', {
+        csrfToken: req.csrfToken(),
+        url: "",
+        showUrl: 'hidden'
+    });
 });
 
 // add a document to the DB collection recording the click event
@@ -78,7 +93,12 @@ app.post('/link', (req, res) => {
         if (err) return console.log(err);
     });
     //res.send('http://localhost/r/' + json['_id'])
-    res.send('https://dont.comeat.me/r/' + json['_id'])
+    // res.send('https://dont.comeat.me/r/' + json['_id'])
+    res.render(__dirname + '/public/index.ejs', {
+        csrfToken: req.csrfToken(),
+        url: 'https://dont.comeat.me/r/' + json['_id'],
+        showUrl: ''
+    });
 });
 
 // add a document to the DB collection recording the click event
@@ -91,7 +111,11 @@ app.post('/lonk', (req, res) => {
         if (err) return console.log(err);
     });
     //res.send('http://localhost/r/' + json['_id'])
-    res.send('https://dont.comeat.me/r/' + json['_id'])
+    res.render(__dirname + '/public/index.ejs', {
+        csrfToken: req.csrfToken(),
+        url: 'https://dont.comeat.me/r/' + json['_id'],
+        showUrl: ''
+    });
 });
 
 // add a document to the DB collection recording the click event
@@ -105,7 +129,11 @@ app.post('/sketchy', (req, res) => {
         if (err) return console.log(err);
     });
     //res.send('http://localhost/r/' + json['_id'])
-    res.send('https://dont.comeat.me/r/' + json['_id'])
+    res.render(__dirname + '/public/index.ejs', {
+        csrfToken: req.csrfToken(),
+        url: 'https://dont.comeat.me/r/' + json['_id'],
+        showUrl: ''
+    });
 });
 
 // app.post('/lyrics', (req, res) => {
@@ -133,6 +161,15 @@ app.get('/r/:id', function (req, res) {
         res.redirect('/')
     }
 });
+
+// error handler
+app.use(function (err, req, res, next) {
+    if (err.code !== 'EBADCSRFTOKEN') return next(err)
+
+    // handle CSRF token errors here
+    res.status(403)
+    res.send('form tampered with')
+})
 
 https.createServer({
     key: fs.readFileSync('/etc/letsencrypt/live/dont.comeat.me/privkey.pem'),

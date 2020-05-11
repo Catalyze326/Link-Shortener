@@ -62,7 +62,7 @@ fs.readFile('./places.csv', (err, data) => {
  Generates the next psudo random 6 char string by taking each alphabet and counting through them
  essentially 000000 000001 except that it uses a random alphabet to look more random
 */
-exports.next = () => {
+const next = exports.next = () => {
     let s = ""
     places[0]++
     for (let i = 0; i < 6; i++)
@@ -101,10 +101,10 @@ exports.sketchy = () => {
     let characters = 'abcdefghijklmnopqrstuvwxyz';
     let charactersLength = characters.length;
     for (let i = 0; i < 6; i++) {
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 8; i++) {
             result += characters.charAt(Math.floor(Math.random() * charactersLength));
         }
-        result += sketchyPhrases[getRandomInt(result.length - 1)]
+        result += sketchyPhrases[getRandomInt(sketchyPhrases.length - 1)]
     }
     return result;
 };

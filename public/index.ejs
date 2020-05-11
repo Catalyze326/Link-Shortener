@@ -6,12 +6,12 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 </head>
-<body>
-<button class="waves-effect waves-light btn right" onclick="myFunction()">Toggle dark mode</button>
+<body class="dark-mode">
 <div class="center">
     <h1>Link Shortener</h1>
     <p id="counter">Put in a link to make it shorter.</p>
     <form action="/link" method="post">
+        <input type="hidden" name="_csrf" value=<%= csrfToken %>>
         <input type="text" name="uri" placeholder="Put in a url">
         <button class="btn waves-effect waves-light" type="submit" name="action">Submit
             <i class="material-icons right"></i>
@@ -19,6 +19,7 @@
     </form>
     <p>Put in a link to turn it into a lonk.</p>
     <form action="/lonk" method="post">
+        <input type="hidden" name="_csrf" value=<%= csrfToken %>>
         <input type="text" name="uri" placeholder="Put in a url">
         <button class="btn waves-effect waves-light" type="submit" name="action">Submit
             <i class="material-icons right"></i>
@@ -26,24 +27,13 @@
     </form>
     <p>Put in a link to make it sketchier.</p>
     <form action="/sketchy" method="post">
-        <input type="text" name="uri" placeholder="Put in a url">
+        <input type="hidden" name="_csrf" value=<%= csrfToken %>>
+        <input class="textWhite" type="text" name="uri" placeholder="Put in a url">
         <button class="btn waves-effect waves-light" type="submit" name="action">Submit
             <i class="material-icons right"></i>
         </button>
     </form>
-<!--    <p>Put lyrics into a link.</p>-->
-<!--    <form action="/lyrics" method="post">-->
-<!--        <input type="text" name="uri" placeholder="Put in a url">-->
-<!--        <button class="btn waves-effect waves-light" type="submit" name="action">Submit-->
-<!--            <i class="material-icons right"></i>-->
-<!--        </button>-->
-<!--    </form>-->
+    <p class="container <%= showUrl %>>">Your url is: <br> <%= url %></p>
 </div>
-<script>
-    function myFunction() {
-        var element = document.body;
-        element.classList.toggle("dark-mode");
-    }myFunction()
-</script>
 </body>
 </html>

@@ -40,5 +40,5 @@ https://medium.com/@jeremygale/how-to-set-up-a-free-dynamic-hostname-with-ssl-ce
 
 To generate ssl use this
 ```
-sudo certbot certonly --dry-run  --standalone -d YOUR.DYNAMIC.DNS
+sudo certbot certonly --standalone -d YOUR.DYNAMIC.DNS
 ```
